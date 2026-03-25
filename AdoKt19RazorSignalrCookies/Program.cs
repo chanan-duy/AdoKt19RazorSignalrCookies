@@ -21,9 +21,9 @@ public abstract class Program
 		builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
 			.AddCookie(options =>
 			{
-				options.LoginPath = "/Account/Login";
+				options.LoginPath = "/";
 				options.LogoutPath = "/Account/Logout";
-				options.AccessDeniedPath = "/Account/Login";
+				options.AccessDeniedPath = "/";
 			});
 		builder.Services.AddAuthorization();
 
@@ -36,7 +36,9 @@ public abstract class Program
 		using (var scope = app.Services.CreateScope())
 		{
 			var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+			var passwordHasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher<UserEntity>>();
 			await dbContext.Database.EnsureCreatedAsync();
+			await AppDbSeeder.SeedAsync(dbContext, passwordHasher);
 		}
 
 		if (!app.Environment.IsDevelopment())

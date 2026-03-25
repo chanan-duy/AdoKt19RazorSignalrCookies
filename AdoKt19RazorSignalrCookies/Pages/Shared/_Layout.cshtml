@@ -20,14 +20,7 @@
 				<span class="navbar-toggler-icon"></span>
 			</button>
 			<div class="navbar-collapse collapse d-sm-flex justify-content-between">
-				<ul class="navbar-nav">
-					<li class="nav-item">
-						<a class="nav-link" asp-area="" asp-page="/Index">home</a>
-					</li>
-					<li class="nav-item">
-						<a class="nav-link" asp-area="" asp-page="/Chat">chat</a>
-					</li>
-				</ul>
+				<div></div>
 
 				<ul class="navbar-nav align-items-sm-center">
 					@if (User.Identity?.IsAuthenticated == true)
@@ -37,15 +30,6 @@
 						</li>
 						<li class="nav-item">
 							<a class="nav-link" asp-page="/Account/Logout">logout</a>
-						</li>
-					}
-					else
-					{
-						<li class="nav-item">
-							<a class="nav-link" asp-page="/Account/Register">register</a>
-						</li>
-						<li class="nav-item">
-							<a class="nav-link" asp-page="/Account/Login">login</a>
 						</li>
 					}
 				</ul>
@@ -58,12 +42,6 @@
 		@RenderBody()
 	</main>
 </div>
-
-<footer class="border-top footer text-muted">
-	<div class="container">
-		&copy; 2026 - chat demo
-	</div>
-</footer>
 
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
