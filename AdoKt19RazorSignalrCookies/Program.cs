@@ -1,14 +1,43 @@
+using AdoKt19RazorSignalrCookies.Data;
+using AdoKt19RazorSignalrCookies.Hubs;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+
 namespace AdoKt19RazorSignalrCookies;
 
 public abstract class Program
 {
-	public static void Main(string[] args)
+	public static async Task Main(string[] args)
 	{
 		var builder = WebApplication.CreateBuilder(args);
 
+		builder.Services.AddDbContext<AppDbContext>(options =>
+		{
+			options.UseSqlite(builder.Configuration.GetConnectionString("AppDbContext")
+			                  ?? "Data Source=AppDbContext.db");
+		});
+
+		builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+			.AddCookie(options =>
+			{
+				options.LoginPath = "/Account/Login";
+				options.LogoutPath = "/Account/Logout";
+				options.AccessDeniedPath = "/Account/Login";
+			});
+		builder.Services.AddAuthorization();
+
+		builder.Services.AddScoped<IPasswordHasher<UserEntity>, PasswordHasher<UserEntity>>();
 		builder.Services.AddRazorPages();
+		builder.Services.AddSignalR();
 
 		var app = builder.Build();
+
+		using (var scope = app.Services.CreateScope())
+		{
+			var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+			await dbContext.Database.EnsureCreatedAsync();
+		}
 
 		if (!app.Environment.IsDevelopment())
 		{
@@ -20,12 +49,15 @@ public abstract class Program
 
 		app.UseRouting();
 
+		app.UseAuthentication();
 		app.UseAuthorization();
 
 		app.MapStaticAssets();
 		app.MapRazorPages()
 			.WithStaticAssets();
+		app.MapHub<ChatHub>("/chatHub")
+			.RequireAuthorization();
 
-		app.Run();
+		await app.RunAsync();
 	}
 }
